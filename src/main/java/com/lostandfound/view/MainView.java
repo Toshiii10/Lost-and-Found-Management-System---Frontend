@@ -1,7 +1,18 @@
 package com.lostandfound.view;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import com.lostandfound.api.ApiClient;
 import com.lostandfound.api.Session;
+import com.lostandfound.view.screens.DashboardView;
+import com.lostandfound.view.screens.ItemsView;
+import com.lostandfound.view.screens.LostReportsView;
+import com.lostandfound.view.screens.ModerationView;
+import com.lostandfound.view.screens.MyClaimsView;
+import com.lostandfound.view.screens.NotificationsView;
+import com.lostandfound.view.screens.ProfileView;
+import com.lostandfound.view.screens.StaffLostView;
+
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -12,11 +23,13 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * Modern CEBIMS-style shell: Left dark sidebar navigation + Top header bar + Center content workspace.
@@ -115,7 +128,7 @@ public class MainView extends BorderPane {
         sidebar.getChildren().addAll(
                 spacer,
                 campusCard,
-                navItem("profile", "⚙   Settings & Profile", null)
+                navItem("profile", "⚙   Settings", null)
         );
         return sidebar;
     }

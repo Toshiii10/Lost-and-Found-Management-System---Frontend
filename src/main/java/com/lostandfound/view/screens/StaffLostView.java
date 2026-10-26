@@ -1,4 +1,9 @@
-package com.lostandfound.view;
+package com.lostandfound.view.screens;
+
+import com.lostandfound.view.Reloadable;
+import com.lostandfound.view.dialogs.StaffLostDetailDialog;
+import com.lostandfound.view.util.Page;
+import com.lostandfound.view.util.Ui;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.lostandfound.api.ApiClient;
@@ -33,7 +38,7 @@ public class StaffLostView extends BorderPane implements Reloadable {
     private int totalPages = 1;
 
     public StaffLostView() {
-        setPadding(new Insets(12));
+        setPadding(new Insets(22, 28, 22, 28));
 
         status.getItems().addAll("OPEN", "MATCHED", "CLAIMED", "CLOSED", "EXPIRED");
         status.setValue("OPEN");
@@ -53,7 +58,7 @@ public class StaffLostView extends BorderPane implements Reloadable {
         HBox bar = new HBox(8, new Label("Status:"), status, search, go, open, spacer, refresh);
         bar.setAlignment(Pos.CENTER_LEFT);
         bar.setPadding(new Insets(0, 0, 10, 0));
-        setTop(bar);
+        setTop(Page.top("Lost reports (staff)", "All lost reports with private marks and reporter contact details.", bar));
 
         table.setPlaceholder(new Label("No lost reports with this status."));
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -64,7 +69,7 @@ public class StaffLostView extends BorderPane implements Reloadable {
         table.getColumns().add(Ui.col("Where lost", n -> Ui.t(n, "locationName"), 160));
         table.getColumns().add(Ui.col("Date lost", n -> Ui.t(n, "dateOccurred"), 100));
         table.getColumns().add(Ui.col("Photos", n -> String.valueOf(n.path("images").size()), 60));
-        table.getColumns().add(Ui.col("Status", n -> Ui.t(n, "status"), 90));
+        table.getColumns().add(Ui.statusCol("Status", n -> Ui.t(n, "status"), 90));
         table.setRowFactory(tv -> {
             TableRow<JsonNode> row = new TableRow<>();
             row.setOnMouseClicked(ev -> {

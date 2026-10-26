@@ -1,4 +1,11 @@
-package com.lostandfound.view;
+package com.lostandfound.view.screens;
+
+import com.lostandfound.view.Reloadable;
+import com.lostandfound.view.dialogs.ItemDetailDialog;
+import com.lostandfound.view.dialogs.ItemFormDialog;
+import com.lostandfound.view.dialogs.PhotosDialog;
+import com.lostandfound.view.util.Page;
+import com.lostandfound.view.util.Ui;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.lostandfound.api.ApiClient;
@@ -40,7 +47,7 @@ public class ItemsView extends BorderPane implements Reloadable {
 
     public ItemsView(boolean mine) {
         this.mine = mine;
-        setPadding(new Insets(12));
+        setPadding(new Insets(22, 28, 22, 28));
 
         table.setPlaceholder(new Label("No items found."));
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -52,7 +59,7 @@ public class ItemsView extends BorderPane implements Reloadable {
         table.getColumns().add(Ui.col("Drop-off", n -> Lookups.dropName(Ui.t(n, "dropLocationId")), 140));
         table.getColumns().add(Ui.col("Date", n -> Ui.t(n, "dateOccurred"), 100));
         table.getColumns().add(Ui.col("Photos", n -> String.valueOf(n.path("images").size()), 60));
-        table.getColumns().add(Ui.col("Status", n -> Ui.t(n, "status"), 90));
+        table.getColumns().add(Ui.statusCol("Status", n -> Ui.t(n, "status"), 90));
         setCenter(table);
 
         Button refresh = new Button("Refresh");
@@ -66,6 +73,7 @@ public class ItemsView extends BorderPane implements Reloadable {
 
         if (mine) {
             Button add = new Button("New report");
+            add.getStyleClass().add("btn-primary");
             Button edit = new Button("Edit");
             Button photos = new Button("Photos");
             Button del = new Button("Delete");
@@ -111,11 +119,18 @@ public class ItemsView extends BorderPane implements Reloadable {
             paging.setPadding(new Insets(10, 0, 0, 0));
             setBottom(paging);
         }
-        setTop(bar);
+        setTop(Page.top(mine ? "My found reports" : "Found items", mine ? "Items you found and reported. Edit or delete them while they are open and unclaimed." : "Search open found items. Double-click one to see photos and claim it.", bar));
         load();
     }
 
     @Override public void reload() { load(); }
+
+    /** Used by the top-bar search box: show page 1 of the results for q. */
+    public void searchFor(String q) {
+        search.setText(q == null ? "" : q.trim());
+        page = 0;
+        load();
+    }
 
     private void load() {
         String path;

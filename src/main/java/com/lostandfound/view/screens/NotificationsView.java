@@ -1,4 +1,8 @@
-package com.lostandfound.view;
+package com.lostandfound.view.screens;
+
+import com.lostandfound.view.Reloadable;
+import com.lostandfound.view.util.Page;
+import com.lostandfound.view.util.Ui;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.lostandfound.api.ApiClient;
@@ -31,7 +35,7 @@ public class NotificationsView extends BorderPane implements Reloadable {
 
     public NotificationsView(Runnable onChanged) {
         this.onChanged = onChanged;
-        setPadding(new Insets(12));
+        setPadding(new Insets(22, 28, 22, 28));
 
         table.setPlaceholder(new Label("No notifications."));
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -60,7 +64,7 @@ public class NotificationsView extends BorderPane implements Reloadable {
         HBox bar = new HBox(8, markRead, markAll, spacer, refresh);
         bar.setAlignment(Pos.CENTER_LEFT);
         bar.setPadding(new Insets(0, 0, 10, 0));
-        setTop(bar);
+        setTop(Page.top("Notifications", "Updates about your claims and possible matches.", bar));
         setCenter(table);
 
         prev.setOnAction(e -> { if (page > 0) { page--; load(); } });

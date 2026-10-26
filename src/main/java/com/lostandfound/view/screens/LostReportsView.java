@@ -1,4 +1,11 @@
-package com.lostandfound.view;
+package com.lostandfound.view.screens;
+
+import com.lostandfound.view.Reloadable;
+import com.lostandfound.view.dialogs.ItemFormDialog;
+import com.lostandfound.view.dialogs.MatchesDialog;
+import com.lostandfound.view.dialogs.PhotosDialog;
+import com.lostandfound.view.util.Page;
+import com.lostandfound.view.util.Ui;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.lostandfound.api.ApiClient;
@@ -24,7 +31,7 @@ public class LostReportsView extends BorderPane implements Reloadable {
     private final TableView<JsonNode> table = new TableView<>();
 
     public LostReportsView() {
-        setPadding(new Insets(12));
+        setPadding(new Insets(22, 28, 22, 28));
 
         table.setPlaceholder(new Label("You have not filed any lost reports."));
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -35,10 +42,11 @@ public class LostReportsView extends BorderPane implements Reloadable {
         table.getColumns().add(Ui.col("Where lost", n -> Ui.t(n, "locationName"), 170));
         table.getColumns().add(Ui.col("Date", n -> Ui.t(n, "dateOccurred"), 100));
         table.getColumns().add(Ui.col("Photos", n -> String.valueOf(n.path("images").size()), 60));
-        table.getColumns().add(Ui.col("Status", n -> Ui.t(n, "status"), 90));
+        table.getColumns().add(Ui.statusCol("Status", n -> Ui.t(n, "status"), 90));
         setCenter(table);
 
         Button add = new Button("New lost report");
+        add.getStyleClass().add("btn-primary");
         Button edit = new Button("Edit");
         Button photos = new Button("Photos");
         Button matches = new Button("Suggested matches");
@@ -62,7 +70,7 @@ public class LostReportsView extends BorderPane implements Reloadable {
         HBox bar = new HBox(8, add, edit, photos, matches, found, del, spacer, refresh);
         bar.setAlignment(Pos.CENTER_LEFT);
         bar.setPadding(new Insets(0, 0, 10, 0));
-        setTop(bar);
+        setTop(Page.top("My lost reports", "Private reports of things you lost. We suggest matching found items.", bar));
         load();
     }
 

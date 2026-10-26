@@ -1,4 +1,9 @@
-package com.lostandfound.view;
+package com.lostandfound.view.screens;
+
+import com.lostandfound.view.Reloadable;
+import com.lostandfound.view.dialogs.AuthDialogs;
+import com.lostandfound.view.util.Page;
+import com.lostandfound.view.util.Ui;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.lostandfound.api.ApiClient;
@@ -37,12 +42,13 @@ public class ModerationView extends BorderPane implements Reloadable {
     private final ComboBox<String> status = new ComboBox<>();
     private final TextArea details = new TextArea();
     private final Button approve = new Button("Approve");
+    { approve.getStyleClass().add("btn-primary"); }
     private final Button reject = new Button("Reject");
     private final Button proofPhoto = new Button("View proof photo");
     private final Button editClaimant = new Button("Edit claimant profile...");
 
     public ModerationView() {
-        setPadding(new Insets(12));
+        setPadding(new Insets(22, 28, 22, 28));
 
         status.getItems().addAll("PENDING", "APPROVED", "REJECTED", "CANCELLED");
         status.setValue("PENDING");
@@ -54,14 +60,14 @@ public class ModerationView extends BorderPane implements Reloadable {
         HBox bar = new HBox(8, new Label("Show claims:"), status, spacer, refresh);
         bar.setAlignment(Pos.CENTER_LEFT);
         bar.setPadding(new Insets(0, 0, 10, 0));
-        setTop(bar);
+        setTop(Page.top("Claims review", "Compare each claim's proof with the item, then approve or reject.", bar));
 
         table.setPlaceholder(new Label("No claims with this status."));
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.getColumns().add(col("Claimant", n -> n.path("claimant").path("name").asText(""), 160));
         table.getColumns().add(col("Student ID", n -> n.path("claimant").path("studentId").asText(""), 110));
         table.getColumns().add(col("Item", n -> n.path("item").path("name").asText(""), 180));
-        table.getColumns().add(col("Status", n -> n.path("status").asText(""), 90));
+        table.getColumns().add(Ui.statusCol("Status", n -> n.path("status").asText(""), 90));
         table.getColumns().add(col("Submitted", n -> when(n.path("createdAt").asText("")), 140));
         table.setPrefHeight(260);
 

@@ -1,4 +1,10 @@
-package com.lostandfound.view;
+package com.lostandfound.view.screens;
+
+import com.lostandfound.view.Reloadable;
+import com.lostandfound.view.SceneManager;
+import com.lostandfound.view.dialogs.AuthDialogs;
+import com.lostandfound.view.util.Page;
+import com.lostandfound.view.util.Ui;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.lostandfound.api.ApiClient;
@@ -27,7 +33,7 @@ public class ProfileView extends BorderPane implements Reloadable {
     private String first = "", last = "", phoneNum = "";
 
     public ProfileView() {
-        setPadding(new Insets(16));
+        setPadding(new Insets(22, 28, 22, 28));
 
         GridPane g = new GridPane();
         g.setHgap(14);
@@ -65,6 +71,7 @@ public class ProfileView extends BorderPane implements Reloadable {
         right.setPrefWidth(300);
         right.setPadding(new Insets(0, 0, 0, 30));
 
+        setTop(Page.header("Profile", "Your account details and the lists of categories and drop-off places."));
         setLeft(left);
         setCenter(right);
         load();

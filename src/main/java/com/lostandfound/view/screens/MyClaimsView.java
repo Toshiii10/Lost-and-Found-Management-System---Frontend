@@ -1,4 +1,8 @@
-package com.lostandfound.view;
+package com.lostandfound.view.screens;
+
+import com.lostandfound.view.Reloadable;
+import com.lostandfound.view.util.Page;
+import com.lostandfound.view.util.Ui;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.lostandfound.api.ApiClient;
@@ -35,12 +39,12 @@ public class MyClaimsView extends BorderPane implements Reloadable {
     private final Set<String> requested = new HashSet<>();
 
     public MyClaimsView() {
-        setPadding(new Insets(12));
+        setPadding(new Insets(22, 28, 22, 28));
 
         table.setPlaceholder(new Label("You have not claimed anything yet. Find an item under \"Found items\"."));
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.getColumns().add(Ui.col("Item", n -> itemNames.getOrDefault(Ui.t(n, "itemId"), "..."), 200));
-        table.getColumns().add(Ui.col("Status", n -> Ui.t(n, "status"), 100));
+        table.getColumns().add(Ui.statusCol("Status", n -> Ui.t(n, "status"), 100));
         table.getColumns().add(Ui.col("Submitted", n -> Ui.when(Ui.t(n, "createdAt")), 140));
         table.getColumns().add(Ui.col("Reviewed", n -> Ui.when(Ui.t(n, "reviewedAt")), 140));
         table.getColumns().add(Ui.col("Staff note", n -> Ui.t(n, "reviewNote"), 260));
@@ -64,7 +68,7 @@ public class MyClaimsView extends BorderPane implements Reloadable {
         HBox bar = new HBox(8, cancel, proof, spacer, refresh);
         bar.setAlignment(Pos.CENTER_LEFT);
         bar.setPadding(new Insets(0, 0, 10, 0));
-        setTop(bar);
+        setTop(Page.top("My claims", "Claims you filed, and where to collect approved items.", bar));
 
         VBox center = new VBox(8, table, details);
         VBox.setVgrow(details, Priority.ALWAYS);

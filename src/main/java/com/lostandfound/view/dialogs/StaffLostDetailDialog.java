@@ -1,7 +1,9 @@
-package com.lostandfound.view;
+package com.lostandfound.view.dialogs;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.lostandfound.api.Lookups;
+import com.lostandfound.view.util.Ui;
+
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -62,3 +64,4 @@ public final class StaffLostDetailDialog {
         dialog.show();
     }
 }
+

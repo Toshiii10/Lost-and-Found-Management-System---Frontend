@@ -1,7 +1,14 @@
-package com.lostandfound.view;
+package com.lostandfound.view.dialogs;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.lostandfound.api.ApiClient;
+import com.lostandfound.view.util.Ui;
+
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -10,11 +17,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Map;
 
 /**
  * Add or remove the photos (max 3) of one of your own reports.
@@ -96,3 +98,4 @@ public final class PhotosDialog {
         });
     }
 }
+

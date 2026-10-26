@@ -1,4 +1,4 @@
-package com.lostandfound.view;
+package com.lostandfound.view.dialogs;
 
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
@@ -153,3 +153,4 @@ public final class ItemFormDialog {
         }
     }
 }
+

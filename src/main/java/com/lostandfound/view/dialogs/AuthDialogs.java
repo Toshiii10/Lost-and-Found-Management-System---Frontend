@@ -1,12 +1,14 @@
-package com.lostandfound.view;
-
-import com.lostandfound.api.ApiClient;
-import com.lostandfound.view.FormDialog.Field;
-import javafx.stage.Window;
+package com.lostandfound.view.dialogs;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+
+import com.lostandfound.api.ApiClient;
+import com.lostandfound.view.dialogs.FormDialog.Field;
+import com.lostandfound.view.util.Ui;
+
+import javafx.stage.Window;
 
 /** Everything a visitor can do without being logged in, plus the profile edit form. */
 public final class AuthDialogs {
@@ -144,3 +146,4 @@ public final class AuthDialogs {
                 r -> { Ui.info("Profile saved."); if (onSaved != null) onSaved.run(); });
     }
 }
+

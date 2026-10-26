@@ -1,4 +1,4 @@
-package com.lostandfound.view;
+package com.lostandfound.view.dialogs;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -109,3 +109,4 @@ public final class FormDialog {
         dialog.show();
     }
 }
+

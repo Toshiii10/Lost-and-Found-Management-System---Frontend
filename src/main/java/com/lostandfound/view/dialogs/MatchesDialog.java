@@ -1,8 +1,13 @@
-package com.lostandfound.view;
+package com.lostandfound.view.dialogs;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.lostandfound.api.ApiClient;
 import com.lostandfound.api.Lookups;
+import com.lostandfound.view.util.Ui;
+
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -13,9 +18,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Found items that may be yours (up to 5, best first): GET /v1/lost-items/{id}/matches.
@@ -92,3 +94,4 @@ public final class MatchesDialog {
         });
     }
 }
+

@@ -1,6 +1,13 @@
-package com.lostandfound.view;
+package com.lostandfound.view.dialogs;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
 
 import com.lostandfound.api.ApiClient;
+import com.lostandfound.view.util.Ui;
+
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -13,11 +20,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Map;
 
 /** Claim a found item: POST /v1/items/{id}/claims (multipart). Proof text and proof photo are both required. */
 public final class ClaimDialog {
@@ -89,3 +91,4 @@ public final class ClaimDialog {
         dialog.show();
     }
 }
+

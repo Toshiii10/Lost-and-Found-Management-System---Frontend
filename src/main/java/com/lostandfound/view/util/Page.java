@@ -11,10 +11,10 @@ public final class Page {
 
     public static VBox header(String title, String subtitle) {
         Label t = new Label(title);
-        t.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #0f172a;");
+        t.getStyleClass().add("page-title");
         Label s = new Label(subtitle);
         s.setWrapText(true);
-        s.setStyle("-fx-font-size: 12.5px; -fx-text-fill: #64748b;");
+        s.getStyleClass().add("page-sub");
         return new VBox(2, t, s);
     }
 

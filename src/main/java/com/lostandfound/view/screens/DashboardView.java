@@ -1,13 +1,21 @@
 package com.lostandfound.view.screens;
 
+import java.net.URL;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.lostandfound.api.ApiClient;
+import com.lostandfound.api.Session;
 import com.lostandfound.view.Reloadable;
 import com.lostandfound.view.dialogs.ItemDetailDialog;
 import com.lostandfound.view.util.Icons;
 import com.lostandfound.view.util.Ui;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.lostandfound.api.ApiClient;
-import com.lostandfound.api.Session;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -29,14 +37,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
-
-import java.net.URL;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 /**
  * Home screen: welcome header, four stat cards, recent found items, a donut of your claims by status,

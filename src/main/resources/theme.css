@@ -291,6 +291,10 @@
     -fx-background-color: #0b1120;
 }
 
+.root.dark .workspace-bg .label {
+    -fx-text-fill: #e2e8f0;
+}
+
 .root.dark .page-title,
 .root.dark .user-name {
     -fx-text-fill: #f8fafc;

@@ -1,23 +1,25 @@
 package com.lostandfound.view.screens;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.lostandfound.api.ApiClient;
+import com.lostandfound.api.Lookups;
+import com.lostandfound.api.Session;
 import com.lostandfound.view.Reloadable;
 import com.lostandfound.view.SceneManager;
 import com.lostandfound.view.dialogs.AuthDialogs;
 import com.lostandfound.view.util.Page;
 import com.lostandfound.view.util.Ui;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.lostandfound.api.ApiClient;
-import com.lostandfound.api.Lookups;
-import com.lostandfound.api.Session;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 /**
@@ -36,8 +38,8 @@ public class ProfileView extends BorderPane implements Reloadable {
         setPadding(new Insets(22, 28, 22, 28));
 
         GridPane g = new GridPane();
-        g.setHgap(14);
-        g.setVgap(8);
+        g.setHgap(20);
+        g.setVgap(12);
         addRow(g, 0, "Name", name);
         addRow(g, 1, "Role", role);
         addRow(g, 2, "Student ID", studentId);
@@ -45,6 +47,7 @@ public class ProfileView extends BorderPane implements Reloadable {
         addRow(g, 4, "Phone", phone);
 
         Button edit = new Button("Edit my name and phone");
+        edit.getStyleClass().add("btn-primary");
         edit.setVisible(Session.isStaff());
         edit.setManaged(Session.isStaff());
         edit.setOnAction(e -> AuthDialogs.editProfile(getScene().getWindow(), "Edit my profile",
@@ -56,30 +59,54 @@ public class ProfileView extends BorderPane implements Reloadable {
 
         Label hint = new Label(Session.isStaff() ? ""
                 : "Your name, phone and email can only be changed by staff.");
+        hint.getStyleClass().add("page-sub");
         hint.setWrapText(true);
 
-        VBox left = new VBox(14, new Label("My profile"), g, new HBox(8, edit, logoutAll), hint);
-        ((Label) left.getChildren().get(0)).setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        Label myProfTitle = new Label("My profile");
+        myProfTitle.getStyleClass().add("page-title");
+        myProfTitle.setStyle("-fx-font-size: 16px;");
+
+        VBox leftCard = new VBox(16, myProfTitle, g, new HBox(10, edit, logoutAll), hint);
+        leftCard.getStyleClass().add("card");
 
         ListView<String> cats = new ListView<>(FXCollections.observableArrayList(
                 Lookups.categories().stream().map(Lookups.Option::name).toList()));
         ListView<String> drops = new ListView<>(FXCollections.observableArrayList(
                 Lookups.dropLocations().stream().map(Lookups.Option::name).toList()));
-        cats.setPrefHeight(200);
-        drops.setPrefHeight(200);
-        VBox right = new VBox(8, new Label("Categories"), cats, new Label("Drop-off locations"), drops);
-        right.setPrefWidth(300);
-        right.setPadding(new Insets(0, 0, 0, 30));
+        cats.setPrefHeight(180);
+        drops.setPrefHeight(180);
+
+        Label catTitle = new Label("Categories");
+        catTitle.getStyleClass().add("field-label");
+        Label dropTitle = new Label("Drop-off locations");
+        dropTitle.getStyleClass().add("field-label");
+
+        VBox rightCard = new VBox(10, catTitle, cats, dropTitle, drops);
+        rightCard.getStyleClass().add("card");
+
+        GridPane layout = new GridPane();
+        layout.setHgap(18);
+        layout.setPadding(new Insets(14, 0, 0, 0));
+        ColumnConstraints c1 = new ColumnConstraints();
+        c1.setPercentWidth(48);
+        c1.setHgrow(Priority.ALWAYS);
+        ColumnConstraints c2 = new ColumnConstraints();
+        c2.setPercentWidth(52);
+        c2.setHgrow(Priority.ALWAYS);
+        layout.getColumnConstraints().addAll(c1, c2);
+        layout.add(leftCard, 0, 0);
+        layout.add(rightCard, 1, 0);
 
         setTop(Page.header("Profile", "Your account details and the lists of categories and drop-off places."));
-        setLeft(left);
-        setCenter(right);
+        setCenter(layout);
         load();
     }
 
     private static void addRow(GridPane g, int r, String label, Label value) {
         Label l = new Label(label);
+        l.getStyleClass().add("page-sub");
         l.setStyle("-fx-font-weight: bold;");
+        value.getStyleClass().add("field-label");
         g.addRow(r, l, value);
     }
 

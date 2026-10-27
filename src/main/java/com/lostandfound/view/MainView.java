@@ -1,4 +1,5 @@
 package com.lostandfound.view;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -12,6 +13,8 @@ import com.lostandfound.view.screens.MyClaimsView;
 import com.lostandfound.view.screens.NotificationsView;
 import com.lostandfound.view.screens.ProfileView;
 import com.lostandfound.view.screens.StaffLostView;
+import com.lostandfound.view.util.Icons;
+import com.lostandfound.view.util.ThemeManager;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -19,33 +22,46 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.SVGPath;
 import javafx.util.Duration;
 
 /**
- * Modern CEBIMS-style shell: Left dark sidebar navigation + Top header bar + Center content workspace.
+ * CEBIMS: Full-height dark left sidebar + right workspace with centered top search bar,
+ * Sun/Moon theme toggle, and screen container.
  */
 public class MainView extends BorderPane {
     private final Map<String, Node> views = new LinkedHashMap<>();
     private final Map<String, HBox> navButtons = new LinkedHashMap<>();
     private final StackPane contentArea = new StackPane();
+    private final TextField quickSearch = new TextField();
     private final Label notifBadge = new Label("0");
     private final Label bellBadge = new Label("0");
     private final Timeline poller;
 
     public MainView() {
-        // Pre-build views so switching is instant and state is preserved
+        getStyleClass().add("workspace-bg");
+        contentArea.getStyleClass().add("workspace-bg");
+
+        ItemsView openItemsView = new ItemsView(false);
         views.put("dashboard", new DashboardView(this::switchTo));
-        views.put("found", new ItemsView(false));
+        views.put("found", openItemsView);
         views.put("my-found", new ItemsView(true));
         views.put("my-lost", new LostReportsView());
         views.put("my-claims", new MyClaimsView());
@@ -57,8 +73,12 @@ public class MainView extends BorderPane {
         }
 
         setLeft(buildSidebar());
-        setTop(buildTopBar());
-        setCenter(contentArea);
+
+        BorderPane rightWorkspace = new BorderPane();
+        rightWorkspace.getStyleClass().add("workspace-bg");
+        rightWorkspace.setTop(buildTopBar(openItemsView));
+        rightWorkspace.setCenter(contentArea);
+        setCenter(rightWorkspace);
 
         switchTo("dashboard");
 
@@ -66,7 +86,17 @@ public class MainView extends BorderPane {
         poller = new Timeline(new KeyFrame(Duration.seconds(60), e -> refreshBadge()));
         poller.setCycleCount(Animation.INDEFINITE);
         poller.play();
-        sceneProperty().addListener((o, old, scene) -> { if (scene == null) poller.stop(); });
+
+        sceneProperty().addListener((o, old, scene) -> {
+            if (scene == null) {
+                poller.stop();
+            } else {
+                scene.getAccelerators().put(
+                        new KeyCodeCombination(KeyCode.K, KeyCombination.SHORTCUT_DOWN),
+                        () -> quickSearch.requestFocus()
+                );
+            }
+        });
     }
 
     private VBox buildSidebar() {
@@ -74,12 +104,10 @@ public class MainView extends BorderPane {
         sidebar.getStyleClass().add("sidebar");
         sidebar.setPrefWidth(245);
 
-        // Brand Logo Header
-        Label logoIcon = new Label("🎓");
-        logoIcon.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-size: 18px;"
-                + "-fx-min-width: 38; -fx-min-height: 38; -fx-alignment: center; -fx-background-radius: 10;");
-        Label brandTitle = new Label("CEBIMS L&F");
-        brandTitle.setStyle("-fx-text-fill: white; -fx-font-size: 17px; -fx-font-weight: bold;");
+        StackPane logoIcon = Icons.badge(Icons.BOX, "#ffffff", "#2563eb", 20, 38, 10);
+
+        Label brandTitle = new Label("CEBIMS");
+        brandTitle.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 17px; -fx-font-weight: bold;");
         Label brandSub = new Label("Campus Lost & Found\nManagement System");
         brandSub.setStyle("-fx-text-fill: #64748b; -fx-font-size: 10.5px;");
         HBox brandBox = new HBox(12, logoIcon, new VBox(1, brandTitle, brandSub));
@@ -92,12 +120,12 @@ public class MainView extends BorderPane {
         sidebar.getChildren().addAll(
                 brandBox,
                 workSec,
-                navItem("dashboard", "🏠   Dashboard", null),
-                navItem("found", "📦   Found Items", null),
-                navItem("my-found", "📥   My Found Reports", null),
-                navItem("my-lost", "🔍   My Lost Reports", null),
-                navItem("my-claims", "📋   My Claims", null),
-                navItem("notifications", "🔔   Notifications", notifBadge)
+                navItem("dashboard", Icons.HOME, "Dashboard", null),
+                navItem("found", Icons.BOX, "Found Items", null),
+                navItem("my-found", Icons.DOC, "My Found Reports", null),
+                navItem("my-lost", Icons.HELP, "My Lost Reports", null),
+                navItem("my-claims", Icons.CHECK, "My Claims", null),
+                navItem("notifications", Icons.BELL, "Notifications", notifBadge)
         );
 
         if (Session.isStaff()) {
@@ -105,20 +133,17 @@ public class MainView extends BorderPane {
             staffSec.getStyleClass().add("sidebar-section");
             sidebar.getChildren().addAll(
                     staffSec,
-                    navItem("moderation", "⚖   Claims Review", null),
-                    navItem("staff-lost", "📂   All Lost Reports", null)
+                    navItem("moderation", Icons.SHIELD, "Claims Review", null),
+                    navItem("staff-lost", Icons.CLIPBOARD, "All Lost Reports", null)
             );
         }
 
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
-        // Bottom Campus Status Card
-        Label campIcon = new Label("🏢");
-        campIcon.setStyle("-fx-background-color: #dcfce7; -fx-text-fill: #15803d; -fx-font-size: 14px;"
-                + "-fx-min-width: 32; -fx-min-height: 32; -fx-alignment: center; -fx-background-radius: 8;");
+        StackPane campIcon = Icons.badge(Icons.HOME, "#15803d", "#dcfce7", 16, 32, 8);
         Label campName = new Label("Main Campus");
-        campName.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12.5px;");
+        campName.setStyle("-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 12.5px;");
         Label campSub = new Label("All systems operational");
         campSub.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 11px;");
         HBox campusCard = new HBox(10, campIcon, new VBox(1, campName, campSub));
@@ -128,19 +153,21 @@ public class MainView extends BorderPane {
         sidebar.getChildren().addAll(
                 spacer,
                 campusCard,
-                navItem("profile", "⚙   Settings", null)
+                navItem("profile", Icons.USER, "Settings", null)
         );
         return sidebar;
     }
 
-    private HBox navItem(String key, String label, Label badge) {
+    private HBox navItem(String key, String iconPath, String label, Label badge) {
+        StackPane ic = Icons.badge(iconPath, "#94a3b8", null, 18, 20, 0);
+
         Label text = new Label(label);
-        text.setStyle("-fx-text-fill: inherit; -fx-font-weight: 600; -fx-font-size: 13.5px;");
+        text.setStyle("-fx-text-fill: #94a3b8; -fx-font-weight: 600; -fx-font-size: 13.5px;");
 
         Region sp = new Region();
         HBox.setHgrow(sp, Priority.ALWAYS);
 
-        HBox row = new HBox(8, text, sp);
+        HBox row = new HBox(12, ic, text, sp);
         row.setAlignment(Pos.CENTER_LEFT);
         row.getStyleClass().add("nav-btn");
         if (badge != null) {
@@ -154,45 +181,81 @@ public class MainView extends BorderPane {
         return row;
     }
 
-    private HBox buildTopBar() {
-        TextField quickSearch = new TextField();
-        quickSearch.setPromptText("🔍  Search found items, brands, or locations...");
-        quickSearch.getStyleClass().add("search-box");
-        quickSearch.setPrefWidth(380);
-        quickSearch.setOnAction(e -> switchTo("found"));
+    private HBox buildTopBar(ItemsView openItemsView) {
+        StackPane searchIcon = Icons.badge(Icons.SEARCH, "#94a3b8", null, 15, 18, 0);
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
+        quickSearch.setPromptText("Search equipment, items, or reports...");
+        quickSearch.getStyleClass().add("search-input");
+        HBox.setHgrow(quickSearch, Priority.ALWAYS);
+        quickSearch.setOnAction(e -> {
+            String q = quickSearch.getText();
+            switchTo("found");
+            openItemsView.searchFor(q);
+        });
 
-        // Notification Bell Button with Red Badge
-        Button bellBtn = new Button("🔔");
-        bellBtn.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-background-radius: 8; -fx-border-radius: 8;");
+        Label cmdK = new Label("Ctrl+K");
+        cmdK.getStyleClass().add("cmd-k-badge");
+
+        HBox searchContainer = new HBox(8, searchIcon, quickSearch, cmdK);
+        searchContainer.setAlignment(Pos.CENTER_LEFT);
+        searchContainer.setPrefWidth(420);
+        searchContainer.setMaxWidth(460);
+        searchContainer.setPadding(new Insets(5, 10, 5, 12));
+        searchContainer.getStyleClass().add("search-container");
+
+        quickSearch.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+            if (isFocused) {
+                searchContainer.getStyleClass().add("search-container-focused");
+            } else {
+                searchContainer.getStyleClass().remove("search-container-focused");
+            }
+        });
+
+        Region rightSpacer = new Region();
+        HBox.setHgrow(rightSpacer, Priority.ALWAYS);
+
+        // ---- Sun / Moon Theme Toggle Button ----
+        Button themeBtn = ThemeManager.createToggleButton(false);
+        themeBtn.getStyleClass().add("icon-btn");
+
+        // ---- Notification Bell Button with Red Unread Badge ----
+        StackPane bellIcon = Icons.box(Icons.BELL, null, 18);
+        Button bellBtn = new Button();
+        bellBtn.setGraphic(bellIcon);
+        bellBtn.getStyleClass().add("icon-btn");
         bellBtn.setOnAction(e -> switchTo("notifications"));
 
         bellBadge.setVisible(false);
-        bellBadge.setStyle("-fx-background-color: #dc2626; -fx-text-fill: white; -fx-font-size: 10px;"
+        bellBadge.setStyle("-fx-background-color: #ef4444; -fx-text-fill: white; -fx-font-size: 10px;"
                 + "-fx-font-weight: bold; -fx-padding: 1 5 1 5; -fx-background-radius: 999;");
         StackPane bellStack = new StackPane(bellBtn, bellBadge);
         StackPane.setAlignment(bellBadge, Pos.TOP_RIGHT);
+        StackPane.setMargin(bellBadge, new Insets(-4, -4, 0, 0));
 
-        // User Profile Chip
-        Label userAvatar = new Label("👤");
-        userAvatar.setStyle("-fx-background-color: #e2e8f0; -fx-min-width: 34; -fx-min-height: 34;"
-                + "-fx-alignment: center; -fx-background-radius: 999;");
+        Separator vSep = new Separator(javafx.geometry.Orientation.VERTICAL);
+        vSep.setMaxHeight(24);
+
+        // ---- User Profile Chip ----
+        StackPane userAvatar = Icons.box(Icons.USER, null, 18);
+        userAvatar.getStyleClass().add("user-avatar");
+
         Label uName = new Label(Session.displayName());
-        uName.setStyle("-fx-font-weight: bold; -fx-text-fill: #0f172a; -fx-font-size: 13px;");
+        uName.getStyleClass().add("user-name");
         Label uRole = new Label(Session.role());
-        uRole.setStyle("-fx-text-fill: #64748b; -fx-font-size: 11px;");
+        uRole.getStyleClass().add("muted-label");
         VBox uInfo = new VBox(0, uName, uRole);
+
         HBox userChip = new HBox(10, userAvatar, uInfo);
         userChip.setAlignment(Pos.CENTER_LEFT);
-        userChip.setCursor(javafx.scene.Cursor.HAND);
+        userChip.setCursor(Cursor.HAND);
         userChip.setOnMouseClicked(e -> switchTo("profile"));
 
-        Button logoutBtn = new Button("Log out");
+        // ---- Logout Button ----
+        StackPane outIcon = Icons.badge(Icons.LOGOUT, "#64748b", null, 15, 18, 0);
+        Button logoutBtn = new Button("Log out", outIcon);
         logoutBtn.setOnAction(e -> logout());
 
-        HBox top = new HBox(18, quickSearch, spacer, bellStack, userChip, logoutBtn);
+        HBox top = new HBox(12, searchContainer, rightSpacer, themeBtn, bellStack, vSep, userChip, logoutBtn);
         top.setAlignment(Pos.CENTER_LEFT);
         top.getStyleClass().add("topbar");
         return top;
@@ -203,16 +266,21 @@ public class MainView extends BorderPane {
         if (view == null) return;
 
         navButtons.forEach((k, btn) -> {
+            boolean active = k.equals(key);
             btn.getStyleClass().remove("nav-btn-active");
+            if (active) btn.getStyleClass().add("nav-btn-active");
+
+            String color = active ? "#ffffff" : "#94a3b8";
             for (Node child : btn.getChildren()) {
                 if (child instanceof Label lbl && lbl != notifBadge) {
-                    lbl.setStyle("-fx-text-fill: " + (k.equals(key) ? "#ffffff" : "#94a3b8")
-                            + "; -fx-font-weight: 600; -fx-font-size: 13.5px;");
+                    lbl.setStyle("-fx-text-fill: " + color + "; -fx-font-weight: 600; -fx-font-size: 13.5px;");
+                } else if (child instanceof StackPane iconPane && !iconPane.getChildren().isEmpty()
+                        && iconPane.getChildren().get(0) instanceof Group g && !g.getChildren().isEmpty()
+                        && g.getChildren().get(0) instanceof SVGPath svg) {
+                    svg.setStroke(Color.web(color));
                 }
             }
         });
-        HBox active = navButtons.get(key);
-        if (active != null) active.getStyleClass().add("nav-btn-active");
 
         contentArea.getChildren().setAll(view);
         if (view instanceof Reloadable r) r.reload();
